@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Beasiswa GCS — Ponpes Modern Dzikir Al-Fath</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============ RESET & TOKENS ============ */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --blue: #0b4a9b; 
+    --blue-dark: #06306b;
+    --green: #008f4c;
+    --green-light: #10b981;
+    --yellow: #ffcc00;
+    --yellow-dark: #d9a441;
+    
+    --bg-main: #DCEBFF;
+    --bg-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #475569;
+    
+    /* Warna Border untuk Kontras */
+    --border-light: #cbd5e1;
+    --border-dark: #94a3b8;
+    
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    --shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  }
+  
+  html { scroll-behavior: smooth; }
+  
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    /* Menambahkan pola garis halus agar tidak polos */
+    background-image: 
+      linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+      linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+    background-size: 40px 40px;
+    color: var(--text-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  
+  /* ============ ANIMASI HALAMAN ============ */
+  .page-view {
+    display: none;
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  .page-view.active { display: block; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============ NAVBAR (FIXED) ============ */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; height: 70px; z-index: 1000;
+    background: var(--bg-card);
+    border-bottom: 2px solid var(--border-light);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    display: flex; align-items: center;
+  }
+  .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+  
+  .brand { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .brand-mark {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: #ffffff; /* Warna latar diganti putih */
+  display: grid; place-items: center; flex-shrink: 0;
+  border: 1px solid var(--blue-dark);
+  overflow: hidden; /* PENTING: Agar gambar tidak keluar dari lengkungan border-radius */
+}
+
+/* Tambahkan aturan baru khusus untuk gambar di dalamnya */
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* PENTING: Menjaga proporsi gambar agar tidak gepeng */
+  padding: 4px; /* Memberi sedikit ruang agar gambar tidak nempel garis pinggir */
+}
+  .brand-text { display: flex; flex-direction: column; }
+  .brand-title { font-weight: 800; font-size: 16px; color: var(--blue); line-height: 1.2; }
+  .brand-sub { font-size: 10px; font-weight: 700; color: var(--green); letter-spacing: 0.5px; text-transform: uppercase; }
+  
+  .hamburger { 
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; background: var(--bg-main); border: 1.5px solid var(--border-dark); 
+    padding: 8px 12px; border-radius: 8px; transition: 0.3s; font-weight: 700; color: var(--blue);
+    gap: 8px;
+  }
+  .hamburger:hover { background: var(--border-light); }
+  .hamburger svg { width: 20px; height: 20px; stroke: var(--blue); }
+
+  /* ============ MENU OVERLAY & DRAWER ============ */
+  .menu-overlay {
+    position: fixed; inset: 0; background: rgba(15,23,42,0.6);
+    z-index: 1001; opacity: 0; pointer-events: none; transition: 0.3s;
+    backdrop-filter: blur(3px);
+  }
+  .menu-overlay.active { opacity: 1; pointer-events: auto; }
+
+  .menu-drawer {
+    position: fixed; top: 0; right: -100%; width: 100%; max-width: 340px; height: 100vh;
+    background: var(--bg-card); z-index: 1002; 
+    border-left: 1px solid var(--border-light);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    transition: right 0.4s cubic-bezier(0.22, 1, 0.36, 1); padding: 25px 20px;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .menu-drawer.active { right: 0; }
+  .menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--border-light); }
+  .menu-header h3 { font-size: 18px; color: var(--blue); font-weight: 800; }
+  .close-menu { cursor: pointer; font-size: 28px; color: var(--text-muted); line-height: 1; transition: 0.3s; }
+  .close-menu:hover { color: var(--blue); transform: rotate(90deg); }
+  
+  .menu-links { display: flex; flex-direction: column; gap: 8px; }
+  .menu-links a {
+    display: flex; align-items: center; gap: 12px; padding: 12px 15px;
+    font-size: 15px; font-weight: 700; color: var(--text-main);
+    border-radius: 8px; border: 1px solid transparent; transition: 0.2s; cursor: pointer;
+  }
+  .menu-links a:hover, .menu-links a.active { 
+    background: var(--bg-main); border-color: var(--border-light); color: var(--blue); 
+    box-shadow: inset 3px 0 0 var(--green); 
+  }
+  .menu-links a .icon { font-size: 18px; }
+  
+  .menu-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-light); }
+  .menu-footer a { display: flex; justify-content: center; padding: 14px; background: var(--green); color: white; border-radius: 8px; font-weight: 800; border: 1px solid #006b39; transition: 0.3s; }
+  .menu-footer a:hover { background: #006b39; }
+
+  /* ============ LAYOUT UMUM ============ */
+  .main-content { padding-top: 90px; padding-bottom: 60px; min-height: 100vh; }
+  .section-title { text-align: center; margin-bottom: 30px; }
+  .section-title h2 { font-size: clamp(22px, 4vw, 28px); font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+  .section-title p { color: var(--text-muted); font-size: 14.5px; }
+  
+  /* Card Style Kontras */
+  .card {
+    background: var(--bg-card); border-radius: var(--radius);
+    border: 1.5px solid var(--border-light); box-shadow: var(--shadow);
+    padding: 25px; margin-bottom: 20px;
+  }
+
+  /* ============ HOME VIEW ============ */
+  .hero { text-align: center; padding: 20px 0 40px; }
+  .badge {
+    display: inline-block; padding: 6px 16px; border-radius: 50px;
+    background: #fff8e1; color: #b48500; border: 1px solid var(--yellow-dark);
+    font-size: 12px; font-weight: 800; margin-bottom: 20px;
+  }
+  .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 800; line-height: 1.2; color: var(--blue); margin-bottom: 15px; }
+  .hero h1 span.gradient { background: linear-gradient(90deg, var(--green), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lead { font-size: clamp(15px, 2vw, 17px); color: var(--text-muted); max-width: 650px; margin: 0 auto 30px; font-weight: 500; }
+  
+  .hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 24px; border-radius: 8px; font-weight: 700; font-size: 14.5px;
+    transition: 0.2s; cursor: pointer; width: 100%; max-width: 220px; border: 1.5px solid transparent;
+  }
+  .btn-primary { background: var(--blue); color: white; border-color: var(--blue-dark); box-shadow: 0 4px 0 var(--blue-dark); }
+  .btn-primary:hover { transform: translateY(2px); box-shadow: 0 2px 0 var(--blue-dark); }
+  .btn-secondary { background: var(--yellow); color: #333; border-color: var(--yellow-dark); box-shadow: 0 4px 0 var(--yellow-dark); }
+  .btn-secondary:hover { transform: translateY(2px); box-shadow: 0 2px 0 var(--yellow-dark); }
+  .btn-outline { background: white; color: var(--green); border-color: var(--green); box-shadow: 0 4px 0 var(--green); }
+  .btn-outline:hover { transform: translateY(2px); box-shadow: 0 2px 0 var(--green); }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 40px 0; }
+  .stat-box { 
+    background: var(--bg-card); padding: 20px 10px; border-radius: var(--radius-sm); 
+    text-align: center; border: 1.5px solid var(--border-light); box-shadow: var(--shadow); 
+    transition: 0.3s; border-top: 4px solid var(--green);
+  }
+  .stat-box:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--border-dark); }
+  .stat-num { font-size: clamp(24px, 4vw, 32px); font-weight: 800; color: var(--green); line-height: 1; margin-bottom: 5px; }
+  .stat-label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+
+  /* Brosur */
+  .brochure-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .brochure-card { background: var(--bg-card); border-radius: var(--radius); border: 1.5px solid var(--border-dark); box-shadow: var(--shadow); overflow: hidden; }
+  .brochure-header { padding: 12px 15px; background: #f8fafc; border-bottom: 1.5px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+  .brochure-header span { font-weight: 800; font-size: 14px; color: var(--blue); }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .btn-dl-icon { background: white; border: 1px solid var(--border-light); width: 32px; height: 32px; border-radius: 6px; display: grid; place-items: center; color: var(--blue); transition: 0.2s; }
+  .btn-dl-icon:hover { background: var(--blue); color: white; border-color: var(--blue); }
+  .img-wrapper { width: 100%; background: #e2e8f0; cursor: zoom-in; position: relative; }
+  .img-wrapper img { width: 100%; height: auto; display: block; }
+  .img-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: grid; place-items: center; opacity: 0; transition: 0.3s; }
+  .img-wrapper:hover .img-overlay { opacity: 1; }
+  .img-overlay span { background: white; padding: 8px 16px; border-radius: 50px; font-weight: 700; font-size: 13px; color: var(--blue); border: 1px solid var(--border-dark); }
+
+  /* ============ VIEW: PROGRAM ============ */
+  .program-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .program-card { position: relative; border-top: 5px solid var(--blue); }
+  .program-card.dsmb2 { border-top-color: var(--yellow); }
+  .prog-badge { display: inline-block; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 800; margin-bottom: 15px; background: var(--bg-main); border: 1px solid var(--border-light); color: var(--blue); }
+  .program-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: var(--text-main); }
+  .program-card p.desc { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+  .roadmap { display: flex; flex-direction: column; gap: 10px; }
+  .fase { display: flex; gap: 12px; align-items: flex-start; background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid var(--border-light); }
+  .fase-num { background: var(--blue); color: white; font-weight: 800; font-size: 12px; width: 24px; height: 24px; border-radius: 4px; display: grid; place-items: center; flex-shrink: 0; }
+  .fase-text strong { display: block; font-size: 13.5px; color: var(--blue); }
+  .fase-text span { font-size: 12.5px; color: var(--text-muted); }
+  
+  .skills-wrap { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 30px; }
+  .skill-chip { background: white; border: 1.5px solid var(--blue); color: var(--blue); padding: 8px 16px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+  .skill-chip:nth-child(even) { border-color: var(--green); color: var(--green); }
+
+  /* ============ VIEW: FASILITAS & SYARAT ============ */
+  .fac-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .fac-item { display: flex; gap: 12px; background: var(--bg-main); padding: 15px; border-radius: 8px; border: 1px solid var(--border-light); }
+  .fac-num { font-weight: 800; color: white; background: var(--green); font-size: 13px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; }
+  .fac-text p { font-size: 14px; color: var(--text-main); line-height: 1.5; }
+
+  .syarat-list { list-style: none; counter-reset: s-counter; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .syarat-list li { position: relative; padding-left: 35px; font-size: 14px; color: var(--text-main); counter-increment: s-counter; background: var(--bg-main); padding: 12px 15px 12px 40px; border-radius: 8px; border: 1px solid var(--border-light); }
+  .syarat-list li::before { content: counter(s-counter); position: absolute; left: 10px; top: 12px; width: 22px; height: 22px; background: var(--blue); color: white; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; }
+
+  /* ============ VIEW: MITRA & KARIR ============ */
+  .list-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 13px; }
+  .list-item { background: var(--bg-main); padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-light); color: var(--text-main); }
+  
+  .career-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .career-card h3 { font-size: 18px; font-weight: 800; color: var(--blue); margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--border-light); }
+  .country-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .country-item { display: flex; justify-content: space-between; font-size: 14px; padding: 8px 12px; background: var(--bg-main); border-radius: 6px; border: 1px solid var(--border-light); }
+  .country-item span:last-child { font-weight: 800; color: var(--blue); }
+  .salary-highlight { background: var(--yellow); color: #333; padding: 15px; border-radius: 8px; text-align: center; font-weight: 800; font-size: 18px; margin-top: 15px; border: 1.5px solid var(--yellow-dark); }
+  
+  .company-list { list-style: none; display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .company-list li { font-size: 13.5px; color: var(--text-main); background: var(--bg-main); padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-light); display: flex; justify-content: space-between; }
+  .company-list b { color: var(--blue); }
+
+  /* ============ VIEW: KONTAK ============ */
+  .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+  .contact-card { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1.5px solid var(--border-light); display: flex; align-items: center; gap: 15px; transition: 0.2s; box-shadow: var(--shadow); }
+  .contact-card:hover { transform: translateY(-3px); border-color: var(--blue); box-shadow: var(--shadow-hover); }
+  .contact-icon { width: 45px; height: 45px; border-radius: 50%; background: #25d366; display: grid; place-items: center; flex-shrink: 0; border: 1px solid #128c7e; }
+  .contact-icon svg { width: 24px; height: 24px; fill: white; }
+  .contact-info small { display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .contact-info b { font-size: 15px; color: var(--text-main); }
+
+  /* ============ LIGHTBOX ============ */
+  #lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+  #lightbox.active { display: flex; opacity: 1; }
+  #lightbox img { max-width: 95%; max-height: 95%; border-radius: 8px; object-fit: contain; }
+  .close-lightbox { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; line-height: 1; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 992px) {
+    .fac-grid { grid-template-columns: 1fr; }
+    .syarat-list { grid-template-columns: 1fr; }
+    .list-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .career-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .hero { padding: 10px 0 30px; }
+    .btn { width: 100%; max-width: 100%; }
+    .hero-cta { flex-direction: column; gap: 10px; }
+    .brochure-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .program-grid { grid-template-columns: 1fr; }
+    .list-grid-3 { grid-template-columns: 1fr; }
+    .country-list { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <div class="brand" onclick="navigateTo('home')">
+      <div class="brand-mark">
+  <img src="https://files.catbox.moe/tsxgdn.png" alt="Logo Al-Fath">
+</div>
+      <div class="brand-text">
+        <span class="brand-title">Al-Fath Sukabumi</span>
+        <span class="brand-sub">Global Career Scholarship</span>
+      </div>
+    </div>
+    
+    <button class="hamburger" onclick="toggleMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      Menu
+    </button>
+  </div>
+</nav>
+
+<!-- ================= MENU DRAWER ================= -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="menu-drawer" id="menuDrawer">
+  <div class="menu-header">
+    <h3>Navigasi</h3>
+    <span class="close-menu" onclick="toggleMenu()">&times;</span>
+  </div>
+  <div class="menu-links">
+    <a onclick="navigateTo('home')" id="nav-home" class="active"><span class="icon">🏠</span> Halaman Utama</a>
+    <a onclick="navigateTo('program')" id="nav-program"><span class="icon">🎓</span> Program & Roadmap</a>
+    <a onclick="navigateTo('fasilitas')" id="nav-fasilitas"><span class="icon">🏢</span> Fasilitas Dijamin</a>
+    <a onclick="navigateTo('syarat')" id="nav-syarat"><span class="icon">📋</span> Syarat & Ketentuan</a>
+    <a onclick="navigateTo('mitra')" id="nav-mitra"><span class="icon">🏫</span> Lembaga & Unit Bisnis</a>
+    <a onclick="navigateTo('karir')" id="nav-karir"><span class="icon">✈️</span> Peluang Karir</a>
+    <a onclick="navigateTo('kontak')" id="nav-kontak"><span class="icon">💬</span> Kontak Panitia</a>
+  </div>
+  <div class="menu-footer">
+    <a href="https://forms.gle/Snk9r8m1NJhPxiDE9" target="_blank">Daftar Sekarang &rarr;</a>
+  </div>
+</div>
+
+<!-- ================= MAIN CONTENT ================= -->
+<main class="main-content">
+  <div class="container">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: HOME (HANYA INFO PENTING)          -->
+    <!-- ========================================== -->
+    <div id="view-home" class="page-view active">
+      <div class="hero">
+        <div class="badge">GELOMBANG 1 (SATU) — TAHUN 2027</div>
+        <h1>Beasiswa <span class="gradient">GCS KSMB2</span> & <br><span class="gradient">GCS DSMB2</span> — Gratis 100%</h1>
+        <p class="lead">
+          Penerimaan Beasiswa <strong>GCS (Global Career Scholarship)</strong> di Ponpes Modern Dzikir Al-Fath Kota Sukabumi. Kuliah S1, Diklat setara D1, mondok, magang, bekerja — sampai berkelanjutan ke luar negeri.
+        </p>
+        
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="https://forms.gle/Snk9r8m1NJhPxiDE9" target="_blank">📝 Formulir Pendaftaran</a>
+          <a class="btn btn-outline" href="https://files.catbox.moe/r6wfm9.pdf" target="_blank">⬇️ Download Brosur PDF</a>
+          <a class="btn btn-secondary" onclick="navigateTo('kontak')">💬 Hubungi Panitia</a>
+        </div>
+      </div>
+
+      <!-- Stats Penting -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-num" data-count="100" data-suffix="%">0%</div>
+          <div class="stat-label">Gratis Biaya</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" data-count="2" data-suffix="">0</div>
+          <div class="stat-label">Program (S1 & D1)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" data-count="9" data-suffix="+">0+</div>
+          <div class="stat-label">Negara Tujuan</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" data-count="25" data-suffix="JT">0JT</div>
+          <div class="stat-label">Gaji Maksimal</div>
+        </div>
+      </div>
+
+      <!-- Brosur di Home -->
+      <div class="section-title" style="margin-top: 40px;">
+        <h2>Brosur Resmi</h2>
+        <p>Klik gambar untuk melihat ukuran penuh.</p>
+      </div>
+      
+      <div class="brochure-grid">
+        <div class="brochure-card">
+          <div class="brochure-header">
+            <div class="header-left">
+              <span>Brosur Depan</span>
+              <a href="https://files.catbox.moe/4lexl7.jpg" download class="btn-dl-icon" title="Download">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              </a>
+            </div>
+            <span style="background: var(--green); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">GCS KSMB2 & GCS DSMB2</span>
+          </div>
+          <div class="img-wrapper" onclick="openLightbox('https://files.catbox.moe/4lexl7.jpg')">
+            <img src="https://files.catbox.moe/4lexl7.jpg" alt="Brosur Depan" loading="lazy" />
+            <div class="img-overlay"><span>🔍 Zoom</span></div>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <div class="brochure-header">
+            <div class="header-left">
+              <span>Brosur Belakang</span>
+              <a href="https://files.catbox.moe/8gcofk.jpg" download class="btn-dl-icon" title="Download">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              </a>
+            </div>
+            <span style="background: var(--yellow); color: #333; padding: 2px 8px; border-radius: 4px; font-size: 11px;">GCS KSMB2 & GCS DSMB2</span>
+          </div>
+          <div class="img-wrapper" onclick="openLightbox('https://files.catbox.moe/8gcofk.jpg')">
+            <img src="https://files.catbox.moe/8gcofk.jpg" alt="Brosur Belakang" loading="lazy" />
+            <div class="img-overlay"><span>🔍 Zoom</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: PROGRAM (HANYA PROGRAM)            -->
+    <!-- ========================================== -->
+    <div id="view-program" class="page-view">
+      <div class="section-title">
+        <h2>Program & Roadmap</h2>
+        <p>Dua jalur beasiswa dengan keunggulan yang sama-sama gratis 100%.</p>
+      </div>
+
+      <div class="program-grid">
+        <!-- KSMB2 -->
+        <div class="card program-card">
+          <div class="prog-badge">GCS KSMB2 (5 Tahun)</div>
+          <h3>Kuliah, Santri, Magang, Bekerja</h3>
+          <p class="desc">Beasiswa penuh kuliah di Perguruan Tinggi yang ditunjuk hasil seleksi sampai Sarjana (S1) dan mondok di Ponpes Dzikir Al-Fath.</p>
+          <div class="roadmap">
+            <div class="fase"><div class="fase-num">1</div><div class="fase-text"><strong>Tahun 1 (Fase 1)</strong><span>Kuliah & Character Building. Global Orientation Business Internship.</span></div></div>
+            <div class="fase"><div class="fase-num">2</div><div class="fase-text"><strong>Tahun 2 (Fase 2)</strong><span>Global Outreach Internship. Interpersonal & Trust Experience, LGD, Excel.</span></div></div>
+            <div class="fase"><div class="fase-num">3</div><div class="fase-text"><strong>Tahun 3 (Fase 3)</strong><span>Global Overseas Professional Integration. Menjadi mahasiswa berprestasi.</span></div></div>
+            <div class="fase"><div class="fase-num">4</div><div class="fase-text"><strong>Tahun ke-5 (Fase 4)</strong><span>Sustainability & Pay It Forward. Aktifitas Professional Contribution.</span></div></div>
+          </div>
+        </div>
+
+        <!-- DSMB2 -->
+        <div class="card program-card dsmb2">
+          <div class="prog-badge">GCS DSMB2 (2.5 Tahun)</div>
+          <h3>Diklat, Santri, Magang, Bekerja</h3>
+          <p class="desc">Beasiswa penuh Diklat setara D1 di LP2SSC dan mondok di Ponpes Dzikir Al-Fath. Lulus langsung disalurkan kerja ke luar negeri.</p>
+          <div class="roadmap">
+            <div class="fase"><div class="fase-num" style="background: var(--yellow); color:#333;">1</div><div class="fase-text"><strong>Tahun 1 (Fase 1)</strong><span>Kuliah & Character Building. Global Orientation Business Internship.</span></div></div>
+            <div class="fase"><div class="fase-num" style="background: var(--yellow); color:#333;">2</div><div class="fase-text"><strong>Tahun 2 (Fase 2)</strong><span>Global Outreach Internship / Bekerja. LGD, Excel, dll.</span></div></div>
+            <div class="fase"><div class="fase-num" style="background: var(--yellow); color:#333;">3</div><div class="fase-text"><strong>5 Bulan (Fase 3)</strong><span>Global Overseas Professional Integration. Menjadi pekerja profesional.</span></div></div>
+            <div class="fase"><div class="fase-num" style="background: var(--yellow); color:#333;">4</div><div class="fase-text"><strong>Fase 4</strong><span>Sustainability & Pay It Forward.</span></div></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="skills-wrap">
+        <div class="skill-chip">Spiritual Skill</div>
+        <div class="skill-chip">Technical Skill</div>
+        <div class="skill-chip">Life Skill</div>
+        <div class="skill-chip">Conceptual Skill</div>
+        <div class="skill-chip">Human Skill</div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: FASILITAS (HANYA FASILITAS)        -->
+    <!-- ========================================== -->
+    <div id="view-fasilitas" class="page-view">
+      <div class="section-title">
+        <h2>Fasilitas Yang Dijamin</h2>
+        <p>Fasilitas lengkap — dari biaya kuliah hingga kendaraan kerja.</p>
+      </div>
+
+      <div class="card">
+        <div class="fac-grid">
+          <div class="fac-item"><div class="fac-num">1</div><div class="fac-text"><p>Beasiswa GCS KSMB2 yaitu kuliah di PTS yang ditunjuk dari hasil seleksi, pendidikan agama Islam dipondok dan magang kerja.</p></div></div>
+          <div class="fac-item"><div class="fac-num">2</div><div class="fac-text"><p>Beasiswa GCS DSMB2 yaitu diklat bahasa dan keterampilan kerja di LPK LKP LP2SSC, pendidikan agama Islam di pondok dan magang kerja.</p></div></div>
+          <div class="fac-item"><div class="fac-num">3</div><div class="fac-text"><p>Gratis 100% biaya kuliah sampai sarjana (S1) atau diklat setara D1 serta mondok di pesantren Dzikir Al-Fath.</p></div></div>
+          <div class="fac-item"><div class="fac-num">4</div><div class="fac-text"><p>Gratis biaya makan (3x sehari).</p></div></div>
+          <div class="fac-item"><div class="fac-num">5</div><div class="fac-text"><p>Gratis biaya asrama (tempat tinggal).</p></div></div>
+          <div class="fac-item"><div class="fac-num">6</div><div class="fac-text"><p>Biaya transportasi magang kerja di internal ditanggung lembaga.</p></div></div>
+          <div class="fac-item"><div class="fac-num">7</div><div class="fac-text"><p>Diberikan inventaris kendaraan/HP/laptop sesuai kebutuhan kerja/job training.</p></div></div>
+          <div class="fac-item"><div class="fac-num">8</div><div class="fac-text"><p>Disalurkan magang kerja di negara Turki dengan biaya dari perbankan.</p></div></div>
+          <div class="fac-item"><div class="fac-num">9</div><div class="fac-text"><p>Disalurkan kerja profesional ke luar negeri (Jepang, Kuwait, Mekah-Madinah, Turki, Dubai, Montenegro, Slovakia).</p></div></div>
+          <div class="fac-item"><div class="fac-num">10</div><div class="fac-text"><p>Diberikan jaminan & fasilitas pinjaman ke bank untuk biaya penyaluran kerja keluar negeri.</p></div></div>
+          <div class="fac-item"><div class="fac-num">11</div><div class="fac-text"><p>Setelah bekerja diluar negeri maka pinjaman ke bank dicicil dari penghasilan kerja.</p></div></div>
+          <div class="fac-item"><div class="fac-num">12</div><div class="fac-text"><p>Diwajibkan mengeluarkan zakat, penghasilan & infaq sesuai syariah untuk membiayai santri berikutnya.</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 4: SYARAT (HANYA SYARAT)              -->
+    <!-- ========================================== -->
+    <div id="view-syarat" class="page-view">
+      <div class="section-title">
+        <h2>Syarat & Ketentuan Khusus</h2>
+        <p>Pastikan Anda memenuhi kriteria berikut sebelum mendaftar.</p>
+      </div>
+      <div class="card">
+        <ul class="syarat-list">
+          <li>Beragama Islam.</li>
+          <li>Punya kemauan bekerja sambil ngaji dan kuliah.</li>
+          <li>Siap ditempatkan kerja di mana saja sambil pesantren.</li>
+          <li>Patuh terhadap semua peraturan Program & Pondok.</li>
+          <li>Program GCS KSMB usia maksimal 22 thn atau lulusan SLTA maksimal 4 thn sebelumnya, untuk Program GCS DSMB maksimal usia 24 thn.</li>
+          <li>Berakhlak baik, bisa membaca Al-Qur'an (kecuali mu'alaf), tidak merokok, tidak ditato, tidak ditindik, tidak mengkonsumsi narkotika & tidak pernah terjerat tindak kriminal.</li>
+          <li>Untuk Job Guru atau Mentor harus mempunyai salah satu kemampuan B. Inggris/Arab/Tahfidz Qur'an/Silat/Kitab.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 5: MITRA (HANYA MITRA)                -->
+    <!-- ========================================== -->
+    <div id="view-mitra" class="page-view">
+      <div class="section-title">
+        <h2>Lembaga & Unit Bisnis</h2>
+        <p>Ekosistem pendukung untuk praktik kerja dan kemandirian santri.</p>
+      </div>
+
+      <div class="card" style="margin-bottom: 20px;">
+        <h3 style="font-size: 16px; font-weight: 800; color: var(--blue); margin-bottom: 15px;">Lembaga Pendidikan & Penunjang</h3>
+        <div class="list-grid-3">
+          <div class="list-item">1. Ponpes Modern Dzikir Al-Fath</div>
+          <div class="list-item">2. KB PAUD Alfath</div>
+          <div class="list-item">3. MDTU Alfath</div>
+          <div class="list-item">4. SDIT Al Fajr</div>
+          <div class="list-item">5. SMP ITQ Alfath</div>
+          <div class="list-item">6. SMK IT Alfath</div>
+          <div class="list-item">7. SMA IT Alfath</div>
+          <div class="list-item">8. MA Al Irsyad</div>
+          <div class="list-item">9. PDF Wustho Dzikir Al-Fath</div>
+          <div class="list-item">10. PDF Ulya Dzikir Al-Fath</div>
+          <div class="list-item">11. LPK LKP LP2SSC</div>
+          <div class="list-item">12. PS. SMB</div>
+          <div class="list-item">13. Museum Prabu Siliwangi</div>
+          <div class="list-item">14. IFE2 EKOTEOLOGI</div>
+          <div class="list-item">15. Laziswaf Al-Fath</div>
+          <div class="list-item">16. Homestay Al-Fath</div>
+          <div class="list-item">17. Pertanian dan Perternakan Al-Fath</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 800; color: var(--blue); margin-bottom: 15px;">Unit Bisnis Al-Fath</h3>
+        <div class="list-grid-3">
+          <div class="list-item">1. Etnofarmaka Al-Fath</div>
+          <div class="list-item">2. RSIH Al-Fath</div>
+          <div class="list-item">3. Toko Souvenir dan Cendramata</div>
+          <div class="list-item">4. Toko Baju Silat</div>
+          <div class="list-item">5. Depot AMDK Al-Fath</div>
+          <div class="list-item">6. Teaching Factory Alfath Sandals</div>
+          <div class="list-item">7. Barber Shop Al-Fath</div>
+          <div class="list-item">8. Market Place</div>
+          <div class="list-item">9. Al-Fath Islamic Homestay</div>
+          <div class="list-item">10. Teaching Factory Pabrik Tahu Tempe</div>
+          <div class="list-item">11. Alfath Mediatama</div>
+          <div class="list-item">12. Pajak dan Inventarisasi Motor</div>
+          <div class="list-item">13. MBG Al-Fath</div>
+          <div class="list-item">14. Konveksi Jahit Al-Fath</div>
+          <div class="list-item">15. Rumah Kemasan</div>
+          <div class="list-item">16. Kantin Al-Fath</div>
+          <div class="list-item">17. Grosir Gawan dan Al Isro</div>
+          <div class="list-item">18. Al-Fath Mart</div>
+          <div class="list-item">19. Butik Aliya Collection</div>
+          <div class="list-item">20. Teaching Factory Pabrik Roti</div>
+          <div class="list-item">21. Sasimath Apparel</div>
+          <div class="list-item">22. Alfath Fried Chicken</div>
+          <div class="list-item">23. Bakso Al-Fath</div>
+          <div class="list-item">24. KSB2OSC</div>
+          <div class="list-item">25. PT. Singga Kelana Buana</div>
+          <div class="list-item">26. CV. Maju Jaya Abadi</div>
+          <div class="list-item">27. KSP Swamitra</div>
+          <div class="list-item">28. Al-Fath Travel and Tours</div>
+          <div class="list-item">29. Laziswaf Al-Fath</div>
+          <div class="list-item">30. Perumahan</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 6: KARIR (HANYA KARIR)                -->
+    <!-- ========================================== -->
+    <div id="view-karir" class="page-view">
+      <div class="section-title">
+        <h2>Peluang & Penempatan Kerja</h2>
+        <p>Jumlah peluang penempatan kerja di luar negeri tahun 2026.</p>
+      </div>
+
+      <div class="career-grid">
+        <div class="card career-card">
+          <h3>Jumlah Peluang (2026)</h3>
+          <div class="country-list">
+            <div class="country-item"><span>🇯🇵 Jepang</span><span>2.500</span></div>
+            <div class="country-item"><span>🇹🇷 Turki</span><span>1.500</span></div>
+            <div class="country-item"><span>🇸🇦 Mekkah Madinah</span><span>700</span></div>
+            <div class="country-item"><span>🇷🇸 Serbia & Montenegro</span><span>500</span></div>
+            <div class="country-item"><span>🇦🇪 Uni Emirat Arab</span><span>200</span></div>
+            <div class="country-item"><span>🇦🇪 Dubai</span><span>200</span></div>
+            <div class="country-item"><span>🇸🇰 Slovakia</span><span>100</span></div>
+            <div class="country-item"><span>🇪🇬 Mesir</span><span>100</span></div>
+            <div class="country-item"><span>🇰🇼 Kuwait</span><span>50</span></div>
+          </div>
+          <div class="salary-highlight">
+            Gaji Perbulan Mencapai:<br>Rp. 6.5 - 25 JT
+          </div>
+        </div>
+
+        <div class="card career-card">
+          <h3>Perusahaan Penempatan</h3>
+          <ul class="company-list">
+            <li><span>Jepang: MISATO INDUSTRY (Mobil)</span></li>
+            <li><span>Jepang: TEKNIA.CO.LTD (Sparepart)</span></li>
+            <li><span>Jepang: ILLUCA COLLAGE (Pendidikan)</span></li>
+            <li><span>Jepang: TENGUSHI TOYOTAKEMAETEN (Restoran)</span></li>
+            <li><span>Jepang: MARUSHO, CO.LTD (Restoran)</span></li>
+            <li><span>Jepang: ASAHI BUILDING MANAGEMENT</span></li>
+            <li><span>Jepang: TOMOSHIGE BUILDING CORP</span></li>
+            <li><span>Turki: HOTEL Crystal Parasio Verde</span></li>
+            <li><span>Kuwait: BAKERY GROUP (Pabrik Kue)</span></li>
+            <li><span>Kuwait: RSIA Al-MULLA (Rumah Sakit)</span></li>
+            <li><span>Kuwait: NAIF CHICKEN (Restoran)</span></li>
+            <li><span>Saudi: AL-MAJAL ALARABI GROUP</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 7: KONTAK (HANYA KONTAK)              -->
+    <!-- ========================================== -->
+    <div id="view-kontak" class="page-view">
+      <div class="section-title">
+        <h2>Kontak Panitia</h2>
+        <p>Ada pertanyaan? Hubungi admin panitia melalui WhatsApp.</p>
+      </div>
+
+      <div class="contact-grid">
+        <a class="contact-card" href="https://wa.me/6285863304021" target="_blank">
+          <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg></div>
+          <div class="contact-info"><small>Admin 1</small><b>0858-6330-4021</b></div>
+        </a>
+        <a class="contact-card" href="https://wa.me/6285217725319" target="_blank">
+          <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg></div>
+          <div class="contact-info"><small>Admin 2</small><b>0852-1772-5319</b></div>
+        </a>
+        <a class="contact-card" href="https://wa.me/628156215163" target="_blank">
+          <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg></div>
+          <div class="contact-info"><small>Admin 3</small><b>0815-6215-163</b></div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ================= LIGHTBOX MODAL ================= -->
+<div id="lightbox" onclick="closeLightbox()">
+  <span class="close-lightbox">&times;</span>
+  <img id="lightbox-img" src="" alt="Zoomed Brochure">
+</div>
+
+<script>
+  /* ---------- Logika Navigasi Halaman (Tab) ---------- */
+  function navigateTo(targetId) {
+    // 1. Sembunyikan semua halaman
+    const pages = document.querySelectorAll('.page-view');
+    pages.forEach(page => page.classList.remove('active'));
+
+    // 2. Tampilkan halaman yang dituju
+    const targetPage = document.getElementById('view-' + targetId);
+    if(targetPage) {
+      targetPage.classList.add('active');
+    }
+
+    // 3. Update status aktif di menu
+    const menuLinks = document.querySelectorAll('.menu-links a');
+    menuLinks.forEach(link => link.classList.remove('active'));
+    const activeLink = document.getElementById('nav-' + targetId);
+    if(activeLink) activeLink.classList.add('active');
+
+    // 4. Tutup menu (jika terbuka)
+    if(document.getElementById('menuDrawer').classList.contains('active')) {
+      toggleMenu();
+    }
+
+    // 5. Scroll ke paling atas
+    window.scrollTo(0, 0);
+
+    // 6. Trigger ulang animasi counter jika ada di halaman yang dibuka
+    triggerCounters();
+  }
+
+  /* ---------- Menu Drawer Toggle ---------- */
+  function toggleMenu() {
+    const drawer = document.getElementById('menuDrawer');
+    const overlay = document.getElementById('menuOverlay');
+    drawer.classList.toggle('active');
+    overlay.classList.toggle('active');
+    
+    if(drawer.classList.contains('active')){
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  /* ---------- Animasi Angka (Counter) ---------- */
+  function triggerCounters() {
+    const counters = document.querySelectorAll('[data-count]');
+    counters.forEach(el => {
+      // Reset ke 0 dulu agar animasi berjalan ulang
+      el.textContent = '0' + (el.dataset.suffix || '');
+      
+      const target = parseInt(el.dataset.count, 10);
+      const suffix = el.dataset.suffix || '';
+      const duration = 1500;
+      const start = performance.now();
+
+      const tick = (now) => {
+        const p = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(target * eased) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // Jalankan counter saat pertama kali load
+  window.addEventListener('load', triggerCounters);
+
+  /* ---------- Lightbox (Zoom Gambar) ---------- */
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+
+  function openLightbox(src) {
+    lightboxImg.src = src;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && lightbox.classList.contains('active')) closeLightbox();
+  });
+</script>
+</body>
+</html>
